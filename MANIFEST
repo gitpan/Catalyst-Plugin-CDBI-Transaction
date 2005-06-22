@@ -1,0 +1,10 @@
+Build.PL
+Changes
+lib/Catalyst/Plugin/CDBI/Transaction.pm
+Makefile.PL
+MANIFEST
+META.yml
+README
+t/01use.t
+t/02pod.t
+t/03pod-coverage.t
