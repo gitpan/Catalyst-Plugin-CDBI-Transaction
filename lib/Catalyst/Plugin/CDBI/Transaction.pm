@@ -5,7 +5,7 @@ use base 'Class::Data::Inheritable';
 
 __PACKAGE__->mk_classdata('cdbi_models');
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 NAME
 
@@ -72,7 +72,7 @@ sub transaction {
     die "Couldn't find a CDBI component" unless @cdbi;
 
     my %ac_prev;
-    for my $cdbi (@cdbi) {
+    for my $cdbi ( map { ref $_ } @cdbi ) {
         # Only touch models that don't have AutoCommit set to zero.
         $ac_prev{$cdbi} = $cdbi->db_Main->{AutoCommit};
         $cdbi->db_Main->{AutoCommit} = 0;

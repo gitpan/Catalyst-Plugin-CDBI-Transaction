@@ -1,5 +1,10 @@
 Revision history for Catalyst-Plugin-CDBI-Transaction
 
-0.01    Date/time
+0.02    14 Sep 2005
+        Bug fix.  Class::DBI model components don't always stringify to their
+        class names.  Used ref() to ensure we always get the CDBI class name
+        before attempting to zero its AutoCommit.
+
+0.01    22 Jun 2005
         First version, released on a (mostly) unsuspecting world.
 

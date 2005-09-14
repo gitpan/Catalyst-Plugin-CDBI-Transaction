@@ -3,7 +3,7 @@ Changes
 lib/Catalyst/Plugin/CDBI/Transaction.pm
 Makefile.PL
 MANIFEST
-META.yml
+META.yml			# Will be created by "make dist"
 README
 t/01use.t
 t/02pod.t
