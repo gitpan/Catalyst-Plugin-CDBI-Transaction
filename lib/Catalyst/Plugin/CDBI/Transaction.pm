@@ -5,7 +5,7 @@ use base 'Class::Data::Inheritable';
 
 __PACKAGE__->mk_classdata('cdbi_models');
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -26,10 +26,10 @@ apps that use Class::DBI models
         my ( $self, $c ) = @_;
 
         $c->transaction( sub { 
-            MyApp::M::CDBI::Sometable->create(
+            MyApp::M::CDBI::Sometable->create({
                 field_1 => 'value 1',
                 field_2 => 'value 2',
-            ); 
+            }); 
         } )
             or $c->log->error("Transaction failed: " . $c->error->[-1]);
     }
@@ -71,12 +71,14 @@ sub transaction {
     my @cdbi = @{ $c->_cdbi_models };
     die "Couldn't find a CDBI component" unless @cdbi;
 
+    # Stash away previous AutoCommit values for CDBI classes
     my %ac_prev;
     for my $cdbi ( map { ref $_ } @cdbi ) {
         # Only touch models that don't have AutoCommit set to zero.
-        $ac_prev{$cdbi} = $cdbi->db_Main->{AutoCommit};
+        $ac_prev{$cdbi} = $cdbi->db_Main->{AutoCommit} || next;
         $cdbi->db_Main->{AutoCommit} = 0;
     }
+    $_->db_Main->{AutoCommit} = 0 for keys %ac_prev;
 
     # Execute the code in $coderef inside a transaction
     eval { $coderef->() };
@@ -91,11 +93,9 @@ sub transaction {
         $c->error($error);
     }
    
-    # Reset AutoCommit to previous value for each model class.
+    # Restore previous AutoCommit values for each model class.
     # Will trigger a commit() if AutoCommit was previously true.
-    foreach my $class (keys %ac_prev) {
-        $class->db_Main->{AutoCommit} = $ac_prev{$class};
-    }
+    $_->db_Main->{AutoCommit} = $ac_prev{$_} for keys %ac_prev;
 
     return $error ? 0 : 1;
 }
